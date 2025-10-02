@@ -42,10 +42,10 @@ const Home = () => {
         </button>
         {open && <div></div>}
       </div>
-      <div className="flex mt-4">
+      <div className="flex mt-4 ml-8">
         <p className="text-5xl">New</p>
       </div>
-      <div className="w-40 h-40 bg-amber-500"></div>
+      <div className="ml-3 w-113 h-128 bg-amber-500 mt-4"></div>
     </div>
   );
 };
