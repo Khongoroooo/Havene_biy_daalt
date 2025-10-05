@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import React, { useState } from "react";
-import { Eye, Heart, Search, SlidersHorizontal } from "lucide-react";
+import {
+  ArrowRight,
+  Eye,
+  Heart,
+  Search,
+  SlidersHorizontal,
+} from "lucide-react";
 
 const Home = () => {
   const [open, setOpen] = useState(false);
@@ -127,43 +133,127 @@ const Home = () => {
       <div className="flex mt-4 ml-8">
         <p className="text-5xl">New</p>
       </div>
-      <div className="relative ml-3 w-100 h-128 bg-white mt-4 mb-4 border-[#ABA48D] border-1 rounded-3xl">
-        <Image
-          src="/zar.jpg"
-          alt="cover"
-          width={500}
-          height={50}
-          className="object-cover h-75 rounded-t-3xl"
-        />
+      <div className="flex justify-baseline">
+        <div className="relative ml-6 w-110 h-120 bg-white mt-4 mb-4 border-[#ABA48D] border-1 rounded-3xl">
+          <Image
+            src="/zar.jpg"
+            alt="cover"
+            width={500}
+            height={50}
+            className="object-cover h-75 rounded-t-3xl"
+          />
 
-        <div className="absolut ml-4 mt-4 flex">
-          <button
-            onClick={() => setLiked(!liked)}
-            className=" transition-all duration-100"
-          >
-            <Heart
-              size={24}
-              className={`duration-100 transition-colors ${
-                liked
-                  ? "fill-red-500 text-red-500 scale-110"
-                  : "text-black hover:text-gray-400"
-              }`}
-            />
-          </button>
-        </div>
-        <div className="p-4 space-y-2">
-          <p className="text-lg font-semibold text-[#2A2A2A]">125,500,000₮</p>
-          <p className="text-sm text-gray-700">
-            River Garden хотхонд 2 өрөө байр зарна.
-          </p>
-        </div>
-        <div className="mb-4 ml-4 flex justify-between">
-          <p className="text-[#696969]">45m ago</p>
-          <div className="mr-4 flex justify-between gap-1 text-[#696969]">
-            <Eye color="#696969"></Eye>
-            <p>25</p>
+          <div className="absolut ml-4 mt-4 flex">
+            <button
+              onClick={() => setLiked(!liked)}
+              className=" transition-all duration-100"
+            >
+              <Heart
+                size={24}
+                className={`duration-100 transition-colors ${
+                  liked
+                    ? "fill-red-500 text-red-500 scale-110"
+                    : "text-black hover:text-gray-400"
+                }`}
+              />
+            </button>
+          </div>
+          <div className="p-4 space-y-2">
+            <p className="text-lg font-semibold text-[#2A2A2A]">125,500,000₮</p>
+            <p className="text-sm text-gray-700">
+              River Garden хотхонд 2 өрөө байр зарна.
+            </p>
+          </div>
+          <div className="mb-4 ml-4 flex justify-between">
+            <p className="text-[#696969]">45m ago</p>
+            <div className="mr-4 flex justify-between gap-1 text-[#696969]">
+              <Eye color="#696969"></Eye>
+              <p>25</p>
+            </div>
           </div>
         </div>
+        <div className="relative ml-6 w-110 h-120 bg-white mt-4 mb-4 border-[#ABA48D] border-1 rounded-3xl">
+          <Image
+            src="/zar2.png"
+            alt="cover"
+            width={500}
+            height={50}
+            className="object-cover h-75 rounded-t-3xl"
+          />
+
+          <div className="absolut ml-4 mt-4 flex">
+            <button
+              onClick={() => setLiked(!liked)}
+              className=" transition-all duration-100"
+            >
+              <Heart
+                size={24}
+                className={`duration-100 transition-colors ${
+                  liked
+                    ? "fill-red-500 text-red-500 scale-110"
+                    : "text-black hover:text-gray-400"
+                }`}
+              />
+            </button>
+          </div>
+          <div className="p-4 space-y-2">
+            <p className="text-lg font-semibold text-[#2A2A2A]">125,500,000₮</p>
+            <p className="text-sm text-gray-700">
+              River Garden хотхонд 2 өрөө байр зарна.
+            </p>
+          </div>
+          <div className="mb-4 ml-4 flex justify-between">
+            <p className="text-[#696969]">45m ago</p>
+            <div className="mr-4 flex justify-between gap-1 text-[#696969]">
+              <Eye color="#696969"></Eye>
+              <p>25</p>
+            </div>
+          </div>
+        </div>
+        <div className="relative ml-6 w-110 h-120 bg-white mt-4 mb-4 border-[#ABA48D] border-1 rounded-3xl">
+          <Image
+            src="/zar1.webp"
+            alt="cover"
+            width={500}
+            height={50}
+            className="object-cover h-75 rounded-t-3xl"
+          />
+
+          <div className="absolut ml-4 mt-4 flex">
+            <button
+              onClick={() => setLiked(!liked)}
+              className=" transition-all duration-100"
+            >
+              <Heart
+                size={24}
+                className={`duration-100 transition-colors ${
+                  liked
+                    ? "fill-red-500 text-red-500 scale-110"
+                    : "text-black hover:text-gray-400"
+                }`}
+              />
+            </button>
+          </div>
+          <div className="p-4 space-y-2">
+            <p className="text-lg font-semibold text-[#2A2A2A]">125,500,000₮</p>
+            <p className="text-sm text-gray-700">
+              River Garden хотхонд 2 өрөө байр зарна.
+            </p>
+          </div>
+          <div className="mb-4 ml-4 flex justify-between">
+            <p className="text-[#696969]">45m ago</p>
+            <div className="mr-4 flex justify-between gap-1 text-[#696969]">
+              <Eye color="#696969"></Eye>
+              <p>25</p>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => setOpen(true)}
+          className="absolute bg-black rounded-full p-2 shadow-md z-10"
+        >
+          <ArrowRight size={24} color="white" />
+        </button>
       </div>
     </div>
   );
