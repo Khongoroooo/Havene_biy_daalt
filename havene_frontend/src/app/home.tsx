@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import React, { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Eye, Heart, Search, SlidersHorizontal } from "lucide-react";
 
 const Home = () => {
   const [open, setOpen] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState<"forSale" | "forRent">("forSale");
 
   const forSaleItems = [
@@ -15,12 +16,34 @@ const Home = () => {
   ];
 
   const forRentItems = [
-    { left: "1 өрөө түрээслүүлнэ", leftCount: 123, right: "2 өрөө түрээслүүлнэ", rightCount: 56 },
-    { left: "1 өрөө түрээслүүлнэ", leftCount: 98, right: "2 өрөө түрээслүүлнэ", rightCount: 45 },
-    { left: "1 өрөө түрээслүүлнэ", leftCount: 150, right: "2 өрөө түрээслүүлнэ", rightCount: 67 },
+    {
+      left: "1 өрөө түрээслүүлнэ",
+      leftCount: 123,
+      right: "2 өрөө түрээслүүлнэ",
+      rightCount: 56,
+    },
+    {
+      left: "1 өрөө түрээслүүлнэ",
+      leftCount: 98,
+      right: "2 өрөө түрээслүүлнэ",
+      rightCount: 45,
+    },
+    {
+      left: "1 өрөө түрээслүүлнэ",
+      leftCount: 150,
+      right: "2 өрөө түрээслүүлнэ",
+      rightCount: 67,
+    },
   ];
 
-  const renderItems = (items: { left: string; leftCount: number; right: string; rightCount: number }[]) => {
+  const renderItems = (
+    items: {
+      left: string;
+      leftCount: number;
+      right: string;
+      rightCount: number;
+    }[]
+  ) => {
     return items.map((item, index) => (
       <div
         key={index}
@@ -35,7 +58,7 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="overflow-y-scroll no-scrollbar">
       <div className="relative w-full h-[400px]">
         <Image src="/house.jpg" alt="cover" fill className="object-cover" />
 
@@ -83,7 +106,9 @@ const Home = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              {activeTab === "forSale" ? renderItems(forSaleItems) : renderItems(forRentItems)}
+              {activeTab === "forSale"
+                ? renderItems(forSaleItems)
+                : renderItems(forRentItems)}
             </div>
           </div>
         </div>
@@ -102,7 +127,44 @@ const Home = () => {
       <div className="flex mt-4 ml-8">
         <p className="text-5xl">New</p>
       </div>
-      <div className="ml-3 w-113 h-128 bg-amber-500 mt-4"></div>
+      <div className="relative ml-3 w-100 h-128 bg-white mt-4 mb-4 border-[#ABA48D] border-1 rounded-3xl">
+        <Image
+          src="/zar.jpg"
+          alt="cover"
+          width={500}
+          height={50}
+          className="object-cover h-75 rounded-t-3xl"
+        />
+
+        <div className="absolut ml-4 mt-4 flex">
+          <button
+            onClick={() => setLiked(!liked)}
+            className=" transition-all duration-100"
+          >
+            <Heart
+              size={24}
+              className={`duration-100 transition-colors ${
+                liked
+                  ? "fill-red-500 text-red-500 scale-110"
+                  : "text-black hover:text-gray-400"
+              }`}
+            />
+          </button>
+        </div>
+        <div className="p-4 space-y-2">
+          <p className="text-lg font-semibold text-[#2A2A2A]">125,500,000₮</p>
+          <p className="text-sm text-gray-700">
+            River Garden хотхонд 2 өрөө байр зарна.
+          </p>
+        </div>
+        <div className="mb-4 ml-4 flex justify-between">
+          <p className="text-[#696969]">45m ago</p>
+          <div className="mr-4 flex justify-between gap-1 text-[#696969]">
+            <Eye color="#696969"></Eye>
+            <p>25</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
