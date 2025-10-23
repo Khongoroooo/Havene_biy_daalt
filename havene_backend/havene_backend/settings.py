@@ -9,8 +9,20 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import os
+import psycopg2
+from   dotenv               import load_dotenv
+from   email.mime.multipart import MIMEMultipart
+from   email.mime.text      import MIMEText
+from   datetime             import datetime
+from   django.urls          import resolve
+from   pathlib              import Path
+import smtplib
+import hashlib
+import base64
+import random
 
-from pathlib import Path
+load_dotenv()  
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +37,7 @@ SECRET_KEY = "django-insecure-+^mdpx@m2w4g5gn1qwap^9&(ka8+hwq$jmb33=x70d+o+5ysrh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -37,7 +49,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "users",
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -73,11 +89,16 @@ WSGI_APPLICATION = "havene_backend.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': os.getenv('DB_NAME'),
+        # 'USER': os.getenv('DB_USER'),
+        # 'PASSWORD': os.getenv('DB_PASSWORD'),
+        # 'HOST': os.getenv('DB_HOST'),
+        # 'PORT': os.getenv('DB_PORT'),
     }
 }
+
 
 
 # Password validation
@@ -120,3 +141,29 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+
+def sendMail(receiver_address, mail_subject, mail_content):
+    sender_address = "starodic@gmail.com"
+    sender_pass    = "mevw hlex yhvd bsbd"
+    message = MIMEMultipart()
+    message['From'] = sender_address
+    message['To'] = receiver_address
+    message['Subject'] = mail_subject  
+    message.attach(MIMEText(mail_content, 'plain'))
+    session = smtplib.SMTP_SSL('smtp.gmail.com', 465) 
+    session.login(sender_address, sender_pass) 
+    text = message.as_string()
+    session.sendmail(sender_address, receiver_address, text)
+    session.quit()
+
+def base64encode(length):
+    return base64.b64encode((createCodes(length-26) + str(datetime.now().time())).encode('ascii')).decode('ascii').rstrip('=')
+
+def createCodes(length):
+    result_str = ''.join((random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') for i in range(length)))
+    return result_str
+
+def passwordHash(password):
+    return hashlib.md5(password.encode('utf-8')).hexdigest()
