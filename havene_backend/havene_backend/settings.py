@@ -10,17 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
-import psycopg2
 from   dotenv               import load_dotenv
-from   email.mime.multipart import MIMEMultipart
-from   email.mime.text      import MIMEText
-from   datetime             import datetime
-from   django.urls          import resolve
 from   pathlib              import Path
-import smtplib
-import hashlib
-import base64
-import random
 
 load_dotenv()  
 
@@ -32,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-+^mdpx@m2w4g5gn1qwap^9&(ka8+hwq$jmb33=x70d+o+5ysrh"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -142,28 +133,3 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
-
-def sendMail(receiver_address, mail_subject, mail_content):
-    sender_address = "starodic@gmail.com"
-    sender_pass    = "mevw hlex yhvd bsbd"
-    message = MIMEMultipart()
-    message['From'] = sender_address
-    message['To'] = receiver_address
-    message['Subject'] = mail_subject  
-    message.attach(MIMEText(mail_content, 'plain'))
-    session = smtplib.SMTP_SSL('smtp.gmail.com', 465) 
-    session.login(sender_address, sender_pass) 
-    text = message.as_string()
-    session.sendmail(sender_address, receiver_address, text)
-    session.quit()
-
-def base64encode(length):
-    return base64.b64encode((createCodes(length-26) + str(datetime.now().time())).encode('ascii')).decode('ascii').rstrip('=')
-
-def createCodes(length):
-    result_str = ''.join((random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') for i in range(length)))
-    return result_str
-
-def passwordHash(password):
-    return hashlib.md5(password.encode('utf-8')).hexdigest()
