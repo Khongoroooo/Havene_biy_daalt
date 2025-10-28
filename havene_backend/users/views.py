@@ -62,3 +62,7 @@ def list_users(request):
             return JsonResponse({"error": f"Алдаа {e}", "status": 400})
 
     return JsonResponse({"error": "GET хүсэлт зөвшөөрөгдсөн", "status": 405})
+
+def verify_email(request):
+
+    return JsonResponse({"error": "GET хүсэлт зөвшөөрөгдсөн", "status": 405})
