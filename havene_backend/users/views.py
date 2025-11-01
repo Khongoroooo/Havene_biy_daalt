@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 from havene_backend.supabase_client import supabase
 from havene_backend.havene_utils import UserType, sendMail,createCodes, haveneHash
+from havene_backend.havene_utils import haveneHash, generate_jwt, decode_jwt
+from django.views.decorators.http import require_http_methods
 import json
 
 @csrf_exempt
@@ -63,6 +65,49 @@ def list_users(request):
 
     return JsonResponse({"error": "GET хүсэлт зөвшөөрөгдсөн", "status": 405})
 
+@csrf_exempt
+@require_http_methods(["GET"])
 def verify_email(request):
+    token = request.GET.get("token")
+    if not token:
+        return JsonResponse({"error": "Token дутуу"}, status=400)
 
-    return JsonResponse({"error": "GET хүсэлт зөвшөөрөгдсөн", "status": 405})
+    # Supabase-аас token шалга
+    token_data = supabase.table("tbl_user_tokens").select(
+        "*").eq("token", token).eq(
+            "token_type", "register").eq(
+                "revoked", False).execute()
+
+    if not token_data.data:
+        return JsonResponse({"error": "Буруу token"}, status=400)
+
+    expires_at = datetime.fromisoformat(token_data.data[0]["expires_at"].replace("Z", "+00:00"))  # ISO format
+    if expires_at < datetime.now():
+        return JsonResponse({"error": "Token expired"}, status=400)
+
+    # Verified болго, token revoke
+    supabase.table("tbl_users").update({"is_verified": True}).eq(
+        "id", token_data.data[0]["user_id"]).execute()
+    supabase.table("tbl_user_tokens").update({"revoked": True}).eq(
+        "id", token_data.data[0]["id"]).execute()
+
+    return JsonResponse({"message": "Имэйл баталгаажлаа. Одоо нэвтэрнэ үү."}, status=200)
+
+@csrf_exempt 
+@require_http_methods(["GET"])
+def get_profile(request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return JsonResponse({"error": "Token дутуу"}, status=401)
+
+    token = auth_header.split(" ")[1]
+    decoded = decode_jwt(token)
+    if "error" in decoded:
+        return JsonResponse({"error": decoded["error"]}, status=401)
+
+    user_id = decoded["user_id"]
+    user_data = supabase.table("tbl_users").select("*").eq("id", user_id).execute()
+    if not user_data.data:
+        return JsonResponse({"error": "User олдсонгүй"}, status=404)
+
+    return JsonResponse({"user": user_data.data[0]}, status=200)

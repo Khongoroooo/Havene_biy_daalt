@@ -33,7 +33,9 @@ ALLOWED_HOSTS = ["*"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"
 ]
+
 CORS_ALLOW_ALL_ORIGINS = True
+
 
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -43,6 +45,8 @@ CORS_ALLOW_METHODS = [
     "POST",
     "PUT",
 ]
+
+CSRF_COOKIE_NAME = 'csrftoken'
 
 # Application definition
 

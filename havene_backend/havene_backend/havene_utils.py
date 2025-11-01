@@ -4,11 +4,14 @@ from   email.mime.text        import MIMEText
 from   enum                   import Enum
 from   email.mime.multipart   import MIMEMultipart
 from   email.mime.text        import MIMEText
-from   datetime               import datetime
-import smtplib
-import hashlib
-import base64
-import random
+from   datetime               import datetime, timedelta
+from   supabase import create_client, Client
+from   dotenv import load_dotenv
+import smtplib, hashlib, base64, random, jwt, os
+
+load_dotenv()
+
+### Properties & structer
 
 baseUrl = "http://127.0.0.1:8000"
 
@@ -19,6 +22,43 @@ class UserType(str, Enum):
     COMPANY = "COMPANY"          # Агентлаг, компани
     ADMIN = "ADMIN"              # Админ
     PREMIUM_USER = "PREMIUM_USER"  # Төлбөртэй хэрэглэгч
+
+### properties & structer
+
+### JWT
+
+def generate_jwt(user_id, role_name):
+    payload = {
+        "user_id": user_id,
+        "role_name": role_name, 
+        "exp": datetime.utcnow() + timedelta(days=1),  
+        "iat": datetime.utcnow()  
+    }
+    return jwt.encode(payload, os.environ.get("JWT_SECRET"), algorithm="HS256")
+
+def decode_jwt(token):
+    try:
+        return jwt.decode(token, os.environ.get("JWT_SECRET"), algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return {"Алдаа": "Токен хугацаа дууссан байна."}
+    except jwt.InvalidTokenError:
+        return {"Алдаа": "Токен буруу байна."}
+
+### jwt
+
+### Methods
+    
+def base64encode(length):
+    return base64.b64encode((createCodes(length-26) + str(datetime.now().time())).encode('ascii')).decode('ascii').rstrip('=')
+
+def createCodes(length):
+    result_str = ''.join((random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') for i in range(length)))
+    return result_str
+
+def haveneHash(password):
+    return hashlib.md5(password.encode('utf-8')).hexdigest()
+
+### methods
 
 def sendMail(
     receiver: str,
@@ -89,13 +129,3 @@ def sendMail(
     except Exception as e:
         pass
         print(f"Имэйл илгээхэд алдаа гарлаа: {e}")
-
-def base64encode(length):
-    return base64.b64encode((createCodes(length-26) + str(datetime.now().time())).encode('ascii')).decode('ascii').rstrip('=')
-
-def createCodes(length):
-    result_str = ''.join((random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') for i in range(length)))
-    return result_str
-
-def haveneHash(password):
-    return hashlib.md5(password.encode('utf-8')).hexdigest()
