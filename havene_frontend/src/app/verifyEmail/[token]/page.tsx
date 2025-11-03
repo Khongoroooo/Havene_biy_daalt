@@ -29,12 +29,12 @@ export default function VerifyEmailClient({ token }: { token: string }) {
         }
 
         // Амжилттай эсвэл алдаа байсан ч 3 сек дараа буцаах
-        redirectTimeout = setTimeout(() => router.push("/"), 3000);
+        redirectTimeout = setTimeout(() => router.push("/"), 2000);
       } catch (err) {
         if ((err as any)?.name === "AbortError") return;
         setStatus("error");
         setMessage("Сервертэй холбогдож чадсангүй.");
-        redirectTimeout = setTimeout(() => router.push("/"), 3000);
+        redirectTimeout = setTimeout(() => router.push("/"), 2000);
       }
     };
 
@@ -61,7 +61,7 @@ export default function VerifyEmailClient({ token }: { token: string }) {
             <div className="text-green-600 text-4xl mb-2">✔</div>
             <h2 className="text-xl font-semibold mb-2">Амжилттай!</h2>
             <p className="text-gray-600">{message}</p>
-            <p className="text-sm text-gray-400 mt-2">3 секундын дараа нүүр хуудас руу шилжинэ...</p>
+            <p className="text-sm text-gray-400 mt-2">2 секундын дараа нүүр хуудас руу шилжинэ...</p>
           </>
         )}
 
@@ -70,7 +70,7 @@ export default function VerifyEmailClient({ token }: { token: string }) {
             <div className="text-red-600 text-4xl mb-2">✖</div>
             <h2 className="text-xl font-semibold mb-2">Алдаа!</h2>
             <p className="text-gray-600">{message}</p>
-            <p className="text-sm text-gray-400 mt-2">3 секундын дараа нүүр хуудас руу шилжинэ...</p>
+            <p className="text-sm text-gray-400 mt-2">2 секундын дараа нүүр хуудас руу шилжинэ...</p>
           </>
         )}
       </div>

@@ -1,3 +1,6 @@
+// src/app/components/navbar/NavbarMenu.tsx
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,7 +12,7 @@ interface Props {
   role: string;
 }
 
-const NavbarMenu = ({ setOpen, sidebarOpen, isLoggedIn, role }: Props) => {
+const NavbarMenu = ({ setOpen, setSidebarOpen, sidebarOpen, isLoggedIn, role }: Props) => {
   return (
     <nav
       className={`sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200
@@ -38,12 +41,12 @@ const NavbarMenu = ({ setOpen, sidebarOpen, isLoggedIn, role }: Props) => {
         {!isLoggedIn ? (
           <button
             onClick={() => setOpen(true)}
-            className="bg-[#ABA48D] py-1.5 px-4 rounded-full text-white text-sm font-medium hover:bg-[#9b927b] transition"
+            className="hidden md:inline-block bg-[#ABA48D] py-1.5 px-4 rounded-full text-white text-sm font-medium hover:bg-[#9b927b] transition"
           >
             НЭВТРЭХ
           </button>
         ) : (
-          <>
+          <div className="hidden md:flex items-center gap-3">
             {role === "ADMIN" ? (
               <Link href="/admin/dashboard" className="text-[#ABA48D] text-sm font-medium">
                 Админ самбар
@@ -62,8 +65,32 @@ const NavbarMenu = ({ setOpen, sidebarOpen, isLoggedIn, role }: Props) => {
             >
               Гарах
             </button>
-          </>
+          </div>
         )}
+
+        {/* Mobile: hamburger */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+          aria-expanded={sidebarOpen}
+          className="md:hidden flex flex-col justify-between w-8 h-6 ml-2"
+        >
+          <span
+            className={`block h-0.5 w-full bg-black transition-transform duration-200 ${
+              sidebarOpen ? "translate-y-2 rotate-45 origin-center" : ""
+            }`}
+          />
+          <span
+            className={`block h-0.5 w-full bg-black transition-opacity duration-200 ${
+              sidebarOpen ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          <span
+            className={`block h-0.5 w-full bg-black transition-transform duration-200 ${
+              sidebarOpen ? "-translate-y-2 -rotate-45 origin-center" : ""
+            }`}
+          />
+        </button>
       </div>
     </nav>
   );

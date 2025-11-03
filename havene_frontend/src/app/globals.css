@@ -31,3 +31,12 @@ body {
   -ms-overflow-style: none; /* IE, Edge */
   scrollbar-width: none; /* Firefox */
 }
+.cursor-grab { cursor: grab; }
+.cursor-grabbing { cursor: grabbing; }
+
+/* Sidebar sticky */
+@media (min-width: 1024px) {
+  aside .sticky {
+    top: 80px;
+  }
+}

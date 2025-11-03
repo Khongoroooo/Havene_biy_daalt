@@ -1,4 +1,4 @@
-const API_URL = process.env.API_URL;
+export const API_URL = process.env.API_URL || "http://127.0.0.1:8000";
 
 export const registerUser = async (email: string, password: string) => {
   const res = await fetch(`${API_URL}/users/register/`, {
@@ -13,4 +13,17 @@ export const registerUser = async (email: string, password: string) => {
   }
 
   return res.json();
+};
+
+export const getProfile = async () => {
+  const token = localStorage.getItem("havene_token");
+  if (!token) throw new Error("Токен олдсонгүй");
+
+  const res = await fetch(`${API_URL}/users/profile/`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Алдаа гарлаа");
+  return data;
 };
