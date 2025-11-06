@@ -10,10 +10,11 @@ import json
 @csrf_exempt
 def register_user(request):
     if request.method == "POST":
-        
         try:
             body = json.loads(request.body.decode("utf-8"))
             try:
+                print("body")
+                print(body)
                 email = body.get("email")
                 password = haveneHash(body.get("password"))
             except Exception as e:

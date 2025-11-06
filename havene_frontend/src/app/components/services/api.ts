@@ -1,6 +1,10 @@
-export const API_URL = process.env.API_URL || "http://127.0.0.1:8000";
+// api.ts
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
 
 export const registerUser = async (email: string, password: string) => {
+  console.log(API_URL)
+  console.log("API_URL")
   const res = await fetch(`${API_URL}/users/register/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

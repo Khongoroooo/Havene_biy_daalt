@@ -6,6 +6,7 @@ import InputField from "../inputField";
 import Button from "../button";
 import { useRouter } from "next/navigation";
 import { ViewMode } from "./types";
+import { API_URL } from "../services/api"; 
 
 interface Props {
   open: boolean;
@@ -45,7 +46,7 @@ const NavbarModal = ({ open, setOpen, setSidebarOpen, view, setView }: Props) =>
     }
 
     try {
-      const res = await fetch(`${process.env.API_URL}/users/login/`, {
+      const res = await fetch(`${API_URL}/users/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: loginEmail, password: loginPassword }),
@@ -79,7 +80,7 @@ const NavbarModal = ({ open, setOpen, setSidebarOpen, view, setView }: Props) =>
 
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.API_URL}/users/register/`, {
+      const res = await fetch(`${API_URL}/users/register/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -101,7 +102,7 @@ const NavbarModal = ({ open, setOpen, setSidebarOpen, view, setView }: Props) =>
     }
 
     try {
-      const res = await fetch(`${process.env.API_URL}/users/reset_password/`, {
+      const res = await fetch(`${API_URL}/users/reset_password/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: forgotEmail }),
