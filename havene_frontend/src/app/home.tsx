@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import PropertyCard  from "./components/PropertyCard";
 import React, { useRef, useState, useMemo } from "react";
 import {
   ArrowRight,
@@ -10,7 +11,6 @@ import {
   Funnel,
   X,
 } from "lucide-react";
-import PropertyCard from "./property/components/PropertyCard";
 
 /** Type */
 type Property = {
