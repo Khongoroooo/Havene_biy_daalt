@@ -18,7 +18,8 @@ def login(request):
         # 1. Хэрэглэгчийг шалгах
         user_data = supabase.table("tbl_users").select(
             "*").eq("email", email).eq(
-                "password", password).execute()
+                "password", password).eq(
+                "is_verified", True).execute()
         if not user_data.data:
             return JsonResponse({"error": "Имэйл эсвэл нууц үг буруу"}, status=401)
 

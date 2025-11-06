@@ -31,11 +31,11 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
-
 
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -139,6 +139,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+# settings.py (add or modify)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# If you previously set CORS_ALLOW_ALL_ORIGINS = True, it's OK for dev,
+# but prefer the explicit list above for safety:
+# CORS_ALLOW_ALL_ORIGINS = True   # optional for dev, remove for prod
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -150,3 +160,7 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = False   # dev only; set True in production with HTTPS
+SESSION_COOKIE_SECURE = False  # dev only

@@ -13,7 +13,7 @@ load_dotenv()
 
 ### Properties & structer
 
-baseUrl = "http://127.0.0.1:8000"
+FrontEndURL = "http://localhost:3000"
 
 class UserType(str, Enum):
     USER = "USER"                # Энгийн хэрэглэгч
