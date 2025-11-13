@@ -63,6 +63,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -164,3 +165,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_SECURE = False   # dev only; set True in production with HTTPS
 SESSION_COOKIE_SECURE = False  # dev only
+
+
+# Session Configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Database дээр хадгалах
+SESSION_COOKIE_AGE = 7 * 24 * 60 * 60  # 7 хоног
+SESSION_COOKIE_HTTPONLY = True  # JavaScript-аас хандалтгүй байдлаар хамгаалах
+SESSION_COOKIE_SECURE = False  # localhost-д False, production-т True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SAVE_EVERY_REQUEST = True  # Хүсэлт бүрт session шинэчлэх

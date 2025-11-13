@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { menuItems } from "@/constrant/menuItems";
 
 interface Props {
   open: boolean;
@@ -15,15 +16,21 @@ const NavbarSidebar = ({ open, setOpen, setSidebarOpen, isLoggedIn, role }: Prop
     location.reload();
   };
 
+  const currentMenu = !isLoggedIn ? menuItems["guest"] : menuItems[role.toLowerCase()] || [];
+
   return (
     <div
-      className={`fixed inset-0 z-40 transition-opacity duration-300 ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-40 transition-opacity duration-300 ${
+        open ? "pointer-events-auto" : "pointer-events-none"
+      }`}
       aria-hidden={!open}
     >
       {/* overlay */}
       <div
         onClick={() => setSidebarOpen(false)}
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
       />
 
       {/* slide-in panel */}
@@ -37,16 +44,25 @@ const NavbarSidebar = ({ open, setOpen, setSidebarOpen, isLoggedIn, role }: Prop
             <Image src="/haveneLogo.png" alt="Лого" width={56} height={48} />
             <span className="font-semibold">Havene</span>
           </div>
-          <button aria-label="Close sidebar" onClick={() => setSidebarOpen(false)} className="text-gray-600">
+          <button
+            aria-label="Close sidebar"
+            onClick={() => setSidebarOpen(false)}
+            className="text-gray-600"
+          >
             ✕
           </button>
         </div>
 
         <nav className="p-4 flex flex-col gap-2">
-          {["НҮҮР", "ОФИС", "АГЕНТУУД", "ТАНИЛЦУУЛГА", "ХОЛБОО БАРИХ"].map((item) => (
-            <a key={item} href="#" className="py-2 px-3 rounded hover:bg-gray-100 font-medium">
-              {item}
-            </a>
+          {currentMenu.map((item) => (
+            <Link
+              key={item.label}
+              href={item.url}
+              className="py-2 px-3 rounded hover:bg-gray-100 font-medium"
+              onClick={() => setSidebarOpen(false)}
+            >
+              {item.label}
+            </Link>
           ))}
 
           <div className="border-t mt-3 pt-3">
@@ -73,12 +89,20 @@ const NavbarSidebar = ({ open, setOpen, setSidebarOpen, isLoggedIn, role }: Prop
               </>
             ) : (
               <>
-                {role === "ADMIN" ? (
-                  <Link href="/admin/dashboard" className="block py-2 px-3 text-[#ABA48D]">
+                {role.toUpperCase() === "ADMIN" ? (
+                  <Link
+                    href="/admin/dashboard"
+                    className="block py-2 px-3 text-[#ABA48D]"
+                    onClick={() => setSidebarOpen(false)}
+                  >
                     Админ самбар
                   </Link>
                 ) : (
-                  <Link href="/profile" className="block py-2 px-3 text-[#ABA48D]">
+                  <Link
+                    href="/profile"
+                    className="block py-2 px-3 text-[#ABA48D]"
+                    onClick={() => setSidebarOpen(false)}
+                  >
                     Миний профайл
                   </Link>
                 )}

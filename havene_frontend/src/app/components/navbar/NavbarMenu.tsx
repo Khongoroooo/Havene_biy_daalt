@@ -3,6 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { menuItems } from "@/constrant/menuItems";
 
 interface Props {
   setOpen: (v: boolean) => void;
@@ -12,31 +13,46 @@ interface Props {
   role: string;
 }
 
+interface MenuItem {
+  label: string;
+  url: string;
+}
+
 const NavbarMenu = ({ setOpen, setSidebarOpen, sidebarOpen, isLoggedIn, role }: Props) => {
+  // Role-based menu selection
+  const currentMenuItems: MenuItem[] = isLoggedIn
+    ? role.toLowerCase() === "admin"
+      ? menuItems.admin
+      : menuItems.agent
+    : menuItems.guest;
+
+  const handleLogout = () => {
+    localStorage.removeItem("havene_token");
+    location.reload();
+  };
+
   return (
-    <nav
-      className={`sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200
-                  flex items-center justify-between px-4 md:px-10 py-2 shadow-sm transition-all duration-300`}
-    >
-      {/* ЛОГО */}
+    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-4 md:px-10 py-2 shadow-sm">
+      
+      {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
         <Image src="/haveneLogo.png" alt="Лого" width={85} height={52} />
       </Link>
 
-      {/* Цэс — desktop */}
+      {/* Desktop Menu */}
       <div className="hidden md:flex gap-6 items-center">
-        {["НҮҮР", "ОФИС", "АГЕНТУУД", "ТАНИЛЦУУЛГА", "ХОЛБОО БАРИХ"].map((item) => (
-          <a
-            key={item}
-            href="#"
+        {currentMenuItems.map((item: MenuItem) => (
+          <Link
+            key={item.label}
+            href={item.url}
             className="text-gray-700 hover:text-[#ABA48D] font-medium text-sm transition-colors"
           >
-            {item}
-          </a>
+            {item.label}
+          </Link>
         ))}
       </div>
 
-      {/* Баруун тал */}
+      {/* Right side buttons */}
       <div className="flex items-center gap-3">
         {!isLoggedIn ? (
           <button
@@ -47,24 +63,19 @@ const NavbarMenu = ({ setOpen, setSidebarOpen, sidebarOpen, isLoggedIn, role }: 
           </button>
         ) : (
           <div className="hidden md:flex items-center gap-3">
-            {role === "ADMIN" ? (
-              <Link href="/admin/dashboard" className="text-[#ABA48D] text-sm font-medium">
+            {role.toLowerCase() === "admin" && (
+              <Link
+                href="/admin/dashboard"
+                className="text-[#ABA48D] text-sm font-medium"
+              >
                 Админ самбар
               </Link>
-            ) : (
-              <Link href="/profile" className="text-[#ABA48D] text-sm font-medium">
-                Миний профайл
-              </Link>
             )}
-            <button
-              onClick={() => {
-                localStorage.removeItem("havene_token");
-                location.reload();
-              }}
-              className="border border-[#ABA48D] px-3 py-1 rounded-full text-[#ABA48D] text-sm hover:bg-[#ABA48D] hover:text-white transition"
-            >
+            <Link
+              onClick={handleLogout}
+               href="/profile" className="text-[#ABA48D] text-sm font-medium">
               Гарах
-            </button>
+            </Link>
           </div>
         )}
 
