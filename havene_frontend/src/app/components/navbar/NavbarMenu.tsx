@@ -20,9 +20,9 @@ interface MenuItem {
 
 const NavbarMenu = ({ setOpen, setSidebarOpen, sidebarOpen, isLoggedIn, role }: Props) => {
   // Role-based menu selection
-  const currentMenuItems: MenuItem[] = isLoggedIn
+  const currentMenuItems: MenuItem[] = isLoggedIn       
     ? role.toLowerCase() === "admin"
-      ? menuItems.admin
+      ? menuItems.admin 
       : menuItems.agent
     : menuItems.guest;
 
