@@ -232,24 +232,46 @@ export default function UneguiAdminPanel() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="mt-4 flex justify-center flex-wrap gap-2">
-        {getPageNumbers().map((num, idx) => (
-          <button
-            key={idx}
-            disabled={num === "..."}
-            className={`px-3 py-1 rounded ${currentPage === num ? "bg-blue-500 text-white" : "bg-gray-200"} ${num === "..." ? "cursor-default" : "cursor-pointer"}`}
-            onClick={() => {
-              if (typeof num === "number") {
-                setCurrentPage(num);
-                addLog(`Page changed to ${num}`);
-              }
-            }}
-          >
-            {num}
-          </button>
-        ))}
-      </div>
+<div className="mt-4 flex justify-center items-center gap-2">
+
+  <button
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage((p) => p - 1)}
+  >
+    Prev
+  </button>
+
+  {getPageNumbers().map((num, idx) => {
+    const isNumber = typeof num === "number";
+    const isActive = isNumber && currentPage === num;
+
+    return (
+      <button
+        key={idx}
+        disabled={!isNumber}
+        className={`
+          px-3 py-1 rounded
+          ${isActive ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"}
+          ${isNumber ? "cursor-pointer" : "cursor-default"}
+        `}
+        onClick={() => isNumber && setCurrentPage(num)}
+      >
+        {num}
+      </button>
+    );
+  })}
+
+  <button
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+    disabled={currentPage === totalPages}
+    onClick={() => setCurrentPage((p) => p + 1)}
+  >
+    Next
+  </button>
+
+</div>
+
 
       {/* Logs */}
       <div className="mt-6 p-4 bg-white shadow rounded max-h-64 overflow-y-auto">
