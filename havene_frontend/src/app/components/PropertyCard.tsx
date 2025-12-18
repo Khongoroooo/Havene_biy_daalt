@@ -12,6 +12,7 @@ interface Props {
   main_image?: string;
   view_count?: number;
   image_count?: number;
+  area_size?: number;
 }
 
 export default function PropertyCard({
@@ -22,19 +23,22 @@ export default function PropertyCard({
   main_image = "/placeholder.png",
   view_count = 0,
   image_count = 0,
+  area_size,
 }: Props) {
   const [liked, setLiked] = useState(false);
 
   return (
     <div className="bg-white border border-[#E6E2DB] rounded-2xl shadow-sm overflow-hidden w-[320px] md:w-[360px]">
-      <Link href={`/property/${id}`} className="block relative h-44 md:h-52">
-        <Image src={main_image} alt={title} fill className="object-cover" />
+      <Link href={`/ul-hudluh/${id}`} className="block relative h-44 md:h-52">
+        <div className="relative w-full h-full">
+          <Image src={main_image} alt={title} fill className="object-cover" />
+        </div>
       </Link>
 
       <div className="p-4">
         <div className="flex justify-between items-start gap-3">
           <div className="flex-1 min-w-0">
-            <Link href={`/property/${id}`}>
+            <Link href={`/ul-hudluh/${id}`}>
               <p className="text-lg font-semibold text-[#1F2937] line-clamp-2">{title}</p>
               <p className="text-sm text-gray-600 mt-1">{location_text}</p>
             </Link>
@@ -54,8 +58,11 @@ export default function PropertyCard({
 
         <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1"><Eye size={14} /> <span>{view_count}</span></div>
+            <div className="flex items-center gap-1">
+              <Eye size={14} /> <span>{view_count}</span>
+            </div>
             <div>· {image_count} зураг</div>
+            {area_size !== undefined && <div>· {area_size} м²</div>}
           </div>
           <div className="text-xs text-gray-400">Шинэ</div>
         </div>

@@ -237,64 +237,30 @@ export default function Home() {
 
             {/* Desktop quick CTA */}
             <button className="hidden md:flex items-center gap-2 bg-[#ABA48D] text-white px-4 rounded-full shadow">
-              Зар оруулах
+          <a href="/ul-hudluh/">Зар хайх</a> 
               <ArrowRight size={16} />
             </button>
           </div>
-
           {/* Desktop Filters (visible md+) */}
-          <div className="hidden md:flex gap-3 mt-6 w-full max-w-4xl items-center bg-white/90 rounded-2xl p-3 shadow">
-            {/* District */}
-            <select
-              value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="px-3 py-2 rounded-md bg-white border"
-            >
-              <option>Бүгд</option>
-              {DISTRICTS.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-
-            {/* Type */}
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="px-3 py-2 rounded-md bg-white border"
-            >
-              {PROPERTY_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-
-            {/* Price */}
-            <div className="flex items-center gap-2">
-              <input
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                placeholder="Доод үнэ (₮)"
-                className="w-36 px-3 py-2 rounded-md border bg-white text-sm"
-                inputMode="numeric"
-              />
-              <input
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                placeholder="Дээд үнэ (₮)"
-                className="w-36 px-3 py-2 rounded-md border bg-white text-sm"
-                inputMode="numeric"
-              />
+          <div className="hidden md:flex justify-center mt-6 w-full">
+            <div className="hidden md:flex justify-center mt-8 w-full">
+              {/* District */}
+              <a
+                href="/ul-hudluh/create"
+                className="
+                flex items-center gap-3
+                bg-[#ABA48D] text-white
+                px-8 py-4
+                rounded-full
+                shadow-lg
+                text-lg font-semibold
+                hover:scale-105 hover:shadow-xl
+                transition-all duration-200"
+              >
+                Зар оруулах
+                <ArrowRight size={16} />
+              </a>
             </div>
-
-            {/* Sort */}
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="px-3 py-2 rounded-md bg-white border ml-auto">
-              <option value="new">Шинэ</option>
-              <option value="priceAsc">Үнэ өсөх</option>
-              <option value="priceDesc">Үнэ буурах</option>
-            </select>
-
-            <button onClick={() => clearFilters()} className="px-3 py-2 rounded-md bg-white border text-sm">
-              Цэвэрлэх
-            </button>
           </div>
         </div>
       </div>
@@ -409,13 +375,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      {/* CTA */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 mt-8 mb-12 flex justify-center">
-        <button className="bg-[#ABA48D] text-white px-6 py-3 rounded-full shadow hover:bg-[#958d76] transition">
-          Зар оруулах
-        </button>
-      </div>
     </div>
   );
 }

@@ -1,235 +1,386 @@
 "use client";
 
-import Image from "next/image";
+import React, { useEffect, useState } from "react";
 import PropertyCard from "../components/PropertyCard";
-import React, { useRef, useState, useMemo } from "react";
-import { ArrowRight, ArrowLeft, Search, SlidersHorizontal, Funnel, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, X } from "lucide-react";
 
-/** Types */
-type Property = {
+type ApiProperty = {
   id: number;
-  title: string;
-  price: string;
-  priceNumber?: number;
-  location_text: string;
-  main_image: string;
-  view_count?: number;
-  image_count?: number;
-  created_at?: string;
-  property_type?: string;
-  area_size?: number;
+  title?: string | null;
+  price?: number | null;
+  location_text?: string | null;
+  main_image?: string | null;
+  view_count?: number | null;
+  image_count?: number | null;
+  area_size?: number | null;
 };
 
-/** Mock Data */
-const mockProperties: Property[] = [
-  { id:1, title:"Модны-2 World Mongolia Tower-т оффис өрөө", price:"125,500,000₮", priceNumber:125500000, location_text:"УБ — Баянгол, Хороо 17", main_image:"/zar.jpg", view_count:5, image_count:6, property_type:"Оффис", area_size:25 },
-  { id:2, title:"Grand Plaza-д оффисын талбай", price:"600,000,000₮", priceNumber:600000000, location_text:"УБ — Баянгол, Баруун 4 зам", main_image:"/zar2.png", view_count:25, image_count:3, property_type:"Оффис", area_size:120 },
-  { id:3, title:"World Mongolia Tower 25м² 1 өрөө үйлчилгээний талбай", price:"112,500,000₮", priceNumber:112500000, location_text:"УБ — Баянгол, Модны 2", main_image:"/zar1.webp", view_count:15, image_count:4, property_type:"Оффис", area_size:25 },
-  { id:4, title:"Cali center-т оффис 53мк талбай", price:"6,800,000₮", priceNumber:6800000, location_text:"УБ — Баянгол, Хороо 24", main_image:"/zar2.png", view_count:10, image_count:2, property_type:"Оффис", area_size:53 },
-  { id:5, title:"Grand plaza 122.9 мкв оффис", price:"1,380,000,000₮", priceNumber:1380000000, location_text:"УБ — Баянгол, Баруун 4 зам", main_image:"/zar.jpg", view_count:8, image_count:5, property_type:"Оффис", area_size:122.9 },
+const DISTRICTS = [
+  "Бүгд",
+  "Баянзүрх",
+  "Баянгол",
+  "Сүхбаатар",
+  "Хан-Уул",
+  "Чингэлтэй",
+  "Сонгинохайрхан",
 ];
 
-const DISTRICTS = ["Бүгд","Сүхбаатар","Хан-Уул","Баянзүрх","Баянгол","Сонгинохайрхан"];
-const PROPERTY_TYPES = ["Бүгд","Орон сууц","Оффис","Газар","Хаус"];
+const PROPERTY_TYPES = [
+  "Бүгд",
+  "Орон сууц",
+  "Газар",
+  "Хашаа байшин",
+  "Оффис",
+  "Худалдааны талбай",
+];
 
-export default function Page() {
-  /** Refs */
-  const featuredRef = useRef<HTMLDivElement | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
+export default function ListingsPage() {
+  const [items, setItems] = useState<ApiProperty[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const perPage = 30;
+  const [total, setTotal] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  // Filters
+  const [query, setQuery] = useState<string>("");
+  const [selectedDistrict, setSelectedDistrict] = useState<string>("Бүгд");
+  const [selectedType, setSelectedType] = useState<string>("Бүгд");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [minArea, setMinArea] = useState<string>("");
+  const [maxArea, setMaxArea] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"newest" | "price_asc" | "price_desc">("newest");
+  
+  const [showMobileFilters, setShowMobileFilters] = useState<boolean>(false);
 
-  /** Filters */
-  const [query, setQuery] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("Бүгд");
-  const [selectedType, setSelectedType] = useState("Бүгд");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [minArea, setMinArea] = useState("");
-  const [maxArea, setMaxArea] = useState("");
-  const [sortBy, setSortBy] = useState<"new"|"priceAsc"|"priceDesc">("new");
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const router = useRouter();
 
-  /** Parse helpers */
-  const parsePrice = (p?: string|number) => {
-    if(typeof p==="number") return p;
-    if(!p) return 0;
-    const digits = p.toString().replace(/[^\d]/g,"");
-    return digits ? parseInt(digits,10):0;
-  };
-  const parseArea = (a?: string|number) => {
-    if(typeof a==="number") return a;
-    if(!a) return 0;
-    const digits = a.toString().replace(/[^\d.]/g,"");
-    return digits ? parseFloat(digits) : 0;
-  };
+  useEffect(() => {
+    void load(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
-  /** Filtered & sorted */
-  const filtered = useMemo(()=>{
-    let items = mockProperties.slice();
+  async function load(pg = 1) {
+    setLoading(true);
+    try {
+      const body = {
+        page: pg,
+        per_page: perPage,
+        query: query || undefined,
+        district: selectedDistrict !== "Бүгд" ? selectedDistrict : undefined,
+        type: selectedType !== "Бүгд" ? selectedType : undefined,
+        min_price: minPrice ? parseFloat(minPrice) : undefined,
+        max_price: maxPrice ? parseFloat(maxPrice) : undefined,
+        min_area: minArea ? parseFloat(minArea) : undefined,
+        max_area: maxArea ? parseFloat(maxArea) : undefined,
+        sort_by: sortBy,
+      };
 
-    if(query.trim()){
-      const q = query.toLowerCase();
-      items = items.filter(it=>it.title.toLowerCase().includes(q) || it.location_text.toLowerCase().includes(q));
+      const res = await fetch("/api/property/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error("list error", json);
+        setItems([]);
+        setTotal(0);
+      } else {
+        setItems(Array.isArray(json.data) ? json.data : []);
+        setTotal(Number(json.total ?? (Array.isArray(json.data) ? json.data.length : 0)));
+      }
+    } catch (err) {
+      console.error("load error", err);
+      setItems([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
     }
-    if(selectedDistrict!=="Бүгд") items = items.filter(it=>it.location_text.toLowerCase().includes(selectedDistrict.toLowerCase()));
-    if(selectedType!=="Бүгд") items = items.filter(it=>(it.property_type??"").toLowerCase()===selectedType.toLowerCase());
+  }
 
-    const minN = parsePrice(minPrice) || undefined;
-    const maxN = parsePrice(maxPrice) || undefined;
-    if(minN!==undefined) items = items.filter(it=>(it.priceNumber??parsePrice(it.price))>=minN);
-    if(maxN!==undefined) items = items.filter(it=>(it.priceNumber??parsePrice(it.price))<=maxN);
+  function handleSearch() {
+    setPage(1);
+    void load(1);
+  }
 
-    const minA = minArea ? parseArea(minArea):undefined;
-    const maxA = maxArea ? parseArea(maxArea):undefined;
-    if(minA!==undefined) items = items.filter(it=>(it.area_size??0)>=minA);
-    if(maxA!==undefined) items = items.filter(it=>(it.area_size??0)<=maxA);
+  function handleClearFilters() {
+    setQuery("");
+    setSelectedDistrict("Бүгд");
+    setSelectedType("Бүгд");
+    setMinPrice("");
+    setMaxPrice("");
+    setMinArea("");
+    setMaxArea("");
+    setSortBy("newest");
+    setPage(1);
+    setTimeout(() => void load(1), 100);
+  }
 
-    if(sortBy==="priceAsc") items.sort((a,b)=>(a.priceNumber??parsePrice(a.price))-(b.priceNumber??parsePrice(b.price)));
-    else if(sortBy==="priceDesc") items.sort((a,b)=>(b.priceNumber??parsePrice(b.price))-(a.priceNumber??parsePrice(a.price)));
-    else items.sort((a,b)=>b.id-a.id);
+  function gotoDetail(id: number) {
+    router.push(`/ul-hudluh/${id}`);
+  }
 
-    return items;
-  },[query,selectedDistrict,selectedType,minPrice,maxPrice,minArea,maxArea,sortBy]);
+  function formatPrice(p?: number | null): string {
+    if (typeof p === "number") {
+      return p.toLocaleString("en-US") + "₮";
+    }
+    return "Үнэ тохиролцоно";
+  }
 
-  /** Scroll helpers */
-  const scrollContainer = (ref:React.RefObject<HTMLDivElement|null>, dir:"left"|"right")=>{
-    if(!ref.current) return;
-    const width = ref.current.clientWidth;
-    const amount = Math.floor(width*0.75);
-    ref.current.scrollBy({left:dir==="left"?-amount:amount,behavior:"smooth"});
-  };
-
-  const clearFilters = ()=>{
-    setQuery(""); setSelectedDistrict("Бүгд"); setSelectedType("Бүгд");
-    setMinPrice(""); setMaxPrice(""); setMinArea(""); setMaxArea("");
-    setSortBy("new");
-  };
+  const totalPages = Math.ceil(total / perPage);
 
   return (
-    <div className="overflow-x-hidden">
-      {/* Hero */}
-      <div className="relative w-full h-[480px] md:h-[550px]">
-        <Image src="/house.jpg" alt="cover" fill className="object-cover"/>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-black/10"/>
-        <div className="absolute inset-0 flex flex-col items-center justify-start pt-16 px-4">
-          <h1 className="text-3xl md:text-5xl font-semibold text-white drop-shadow-lg text-center">Үл хөдлөх – Хайх, үзэх, нэмэх</h1>
-          <p className="text-white/80 mt-2 mb-6 text-center md:text-lg">Зар, түрээс, худалдаа — бүгд нэг дор</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Үл хөдлөх хөрөнгө</h1>
+          <p className="text-gray-600">Нийт {total} зар олдлоо</p>
+        </div>
 
-          {/* Search + Filters */}
-          <div className="relative w-full max-w-3xl flex gap-2">
-            <div className="relative flex-1">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/90 pointer-events-none">
-                <Search size={20}/>
-              </div>
+        {/* Search Bar */}
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
+                type="text"
                 value={query}
-                onChange={e=>setQuery(e.target.value)}
-                placeholder="Жишээ: байр, дүүрэг, үнэ (жишээ: 2 өрөө Баянгол)"
-                className="w-full h-12 md:h-14 pl-12 pr-12 rounded-full bg-white/20 placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-[#ABA48D] shadow-md transition"
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                placeholder="Хайх... (Гарчиг, байршил)"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
               />
-              <div className="absolute right-12 top-1/2 -translate-y-1/2 text-white/90 pointer-events-none">
-                <SlidersHorizontal size={20}/>
-              </div>
             </div>
-
-            <button onClick={()=>setFiltersOpen(s=>!s)} className="md:hidden flex items-center gap-2 bg-white px-3 rounded-full shadow hover:shadow-md transition">
-              <Funnel size={18}/>
-              <span className="text-sm font-medium">Шүүлт</span>
-            </button>
-
-            <button className="hidden md:flex items-center gap-2 bg-[#ABA48D] text-white px-4 py-2 rounded-full shadow hover:bg-[#958d76] transition">
+            <button
+              onClick={handleSearch}
+              className="px-6 py-2 bg-[#ABA48D] text-white rounded-lg hover:bg-[#9A9380] transition-colors"
+            >
               Хайх
             </button>
-          </div>
-
-          {/* Desktop filters */}
-          <div className="hidden md:flex gap-3 mt-6 bg-white/90 rounded-2xl p-4 shadow-lg items-center">
-            <select value={selectedDistrict} onChange={e=>setSelectedDistrict(e.target.value)} className="px-3 py-2 rounded-md border">{DISTRICTS.map(d=><option key={d}>{d}</option>)}</select>
-            <select value={selectedType} onChange={e=>setSelectedType(e.target.value)} className="px-3 py-2 rounded-md border">{PROPERTY_TYPES.map(t=><option key={t}>{t}</option>)}</select>
-            <input value={minPrice} onChange={e=>setMinPrice(e.target.value)} placeholder="Доод үнэ (₮)" className="w-32 px-3 py-2 rounded-md border text-sm" inputMode="numeric"/>
-            <input value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} placeholder="Дээд үнэ (₮)" className="w-32 px-3 py-2 rounded-md border text-sm" inputMode="numeric"/>
-            <input value={minArea} onChange={e=>setMinArea(e.target.value)} placeholder="Доод талбай (м²)" className="w-28 px-3 py-2 rounded-md border text-sm" inputMode="numeric"/>
-            <input value={maxArea} onChange={e=>setMaxArea(e.target.value)} placeholder="Дээд талбай (м²)" className="w-28 px-3 py-2 rounded-md border text-sm" inputMode="numeric"/>
-            <select value={sortBy} onChange={e=>setSortBy(e.target.value as any)} className="px-3 py-2 rounded-md border ml-auto">
-              <option value="new">Шинэ</option>
-              <option value="priceAsc">Үнэ өсөх</option>
-              <option value="priceDesc">Үнэ буурах</option>
-            </select>
-            <button onClick={clearFilters} className="px-3 py-2 rounded-md border text-sm hover:bg-gray-100 transition">Цэвэрлэх</button>
+            <button
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              className="md:hidden px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Шүүлт
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Mobile filters panel */}
-      {filtersOpen && (
-        <div className="md:hidden max-w-6xl mx-auto px-4 mt-4">
-          <div className="bg-white rounded-xl p-4 shadow">
-            <div className="flex items-center justify-between mb-3">
-              <div className="font-medium text-gray-800">Шүүлт</div>
-              <button onClick={()=>setFiltersOpen(false)} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"><X size={18}/></button>
+        {/* Filters */}
+        <div className={`bg-white rounded-lg shadow-sm p-4 mb-6 ${showMobileFilters ? "block" : "hidden md:block"}`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            {/* District */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Дүүрэг</label>
+              <select
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
+              >
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
             </div>
-            <div className="space-y-3">
-              <select value={selectedDistrict} onChange={e=>setSelectedDistrict(e.target.value)} className="w-full px-3 py-2 border rounded-md">{DISTRICTS.map(d=><option key={d}>{d}</option>)}</select>
-              <select value={selectedType} onChange={e=>setSelectedType(e.target.value)} className="w-full px-3 py-2 border rounded-md">{PROPERTY_TYPES.map(t=><option key={t}>{t}</option>)}</select>
-              <div className="grid grid-cols-2 gap-2">
-                <input value={minPrice} onChange={e=>setMinPrice(e.target.value)} placeholder="Доод үнэ (₮)" className="w-full px-3 py-2 border rounded-md" inputMode="numeric"/>
-                <input value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} placeholder="Дээд үнэ (₮)" className="w-full px-3 py-2 border rounded-md" inputMode="numeric"/>
-                <input value={minArea} onChange={e=>setMinArea(e.target.value)} placeholder="Доод талбай (м²)" className="w-full px-3 py-2 border rounded-md" inputMode="numeric"/>
-                <input value={maxArea} onChange={e=>setMaxArea(e.target.value)} placeholder="Дээд талбай (м²)" className="w-full px-3 py-2 border rounded-md" inputMode="numeric"/>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <select value={sortBy} onChange={e=>setSortBy(e.target.value as any)} className="px-3 py-2 border rounded-md flex-1">
-                  <option value="new">Шинэ</option>
-                  <option value="priceAsc">Үнэ өсөх</option>
-                  <option value="priceDesc">Үнэ буурах</option>
-                </select>
-                <button onClick={clearFilters} className="px-3 py-2 rounded-md border hover:bg-gray-100 transition">Цэвэрлэх</button>
-              </div>
+
+            {/* Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Төрөл</label>
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
+              >
+                {PROPERTY_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Min Price */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Доод үнэ</label>
+              <input
+                type="text"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value.replace(/[^0-9]/g, ""))}
+                placeholder="₮"
+                inputMode="numeric"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
+              />
+            </div>
+
+            {/* Max Price */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Дээд үнэ</label>
+              <input
+                type="text"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value.replace(/[^0-9]/g, ""))}
+                placeholder="₮"
+                inputMode="numeric"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
+              />
+            </div>
+
+            {/* Min Area */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Доод талбай</label>
+              <input
+                type="text"
+                value={minArea}
+                onChange={(e) => setMinArea(e.target.value.replace(/[^0-9]/g, ""))}
+                placeholder="м²"
+                inputMode="numeric"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
+              />
+            </div>
+
+            {/* Max Area */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Дээд талбай</label>
+              <input
+                type="text"
+                value={maxArea}
+                onChange={(e) => setMaxArea(e.target.value.replace(/[^0-9]/g, ""))}
+                placeholder="м²"
+                inputMode="numeric"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
+              />
+            </div>
+
+            {/* Sort */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Эрэмбэлэх</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ABA48D] focus:border-transparent"
+              >
+                <option value="newest">Шинэ эхлээд</option>
+                <option value="price_asc">Үнэ өсөхөөр</option>
+                <option value="price_desc">Үнэ буурахаар</option>
+              </select>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Featured Listings */}
-      <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold">Онцлох зар</h2>
           <div className="flex gap-2">
-            <button onClick={()=>scrollContainer(featuredRef,"left")} className="p-2 rounded-full bg-white shadow hover:shadow-md transition"><ArrowLeft size={18}/></button>
-            <button onClick={()=>scrollContainer(featuredRef,"right")} className="p-2 rounded-full bg-white shadow hover:shadow-md transition"><ArrowRight size={18}/></button>
+            <button
+              onClick={handleSearch}
+              className="px-6 py-2 bg-[#ABA48D] text-white rounded-lg hover:bg-[#9A9380] transition-colors"
+            >
+              Шүүх
+            </button>
+            <button
+              onClick={handleClearFilters}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+            >
+              <X size={18} />
+              Цэвэрлэх
+            </button>
           </div>
         </div>
-        <div ref={featuredRef} className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth no-scrollbar">
-          {filtered.slice(0,6).map(p=>(
-            <div key={p.id} className="snap-start w-[520px] min-w-[520px]">
-              <PropertyCard {...p}/>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* New Listings */}
-      <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold">Шинэ зарууд</h2>
-          <div className="flex gap-2">
-            <button onClick={()=>scrollContainer(listRef,"left")} className="p-2 rounded-full bg-white shadow hover:shadow-md transition"><ArrowLeft size={18}/></button>
-            <button onClick={()=>scrollContainer(listRef,"right")} className="p-2 rounded-full bg-white shadow hover:shadow-md transition"><ArrowRight size={18}/></button>
+        {/* Results */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ABA48D]"></div>
           </div>
-        </div>
-        <div ref={listRef} className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory scroll-smooth no-scrollbar">
-          {filtered.map(p=>(
-            <div key={p.id} className="snap-start w-[280px] min-w-[280px]">
-              <PropertyCard {...p}/>
-            </div>
-          ))}
-        </div>
-      </section>
+        ) : items.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+            <p className="text-gray-500 text-lg">Зар олдсонгүй</p>
+            <button
+              onClick={handleClearFilters}
+              className="mt-4 text-[#ABA48D] hover:underline"
+            >
+              Шүүлтийг цэвэрлэх
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {items.map((p) => {
+                const id = Number(p.id);
+                const title = String(p.title ?? "Гарчиггүй зар");
+                const priceStr = formatPrice(p.price);
+                const loc = String(p.location_text ?? "Байршил тодорхойгүй");
+                const main_image = p.main_image ?? "/placeholder.png";
+                const view_count = Number(p.view_count ?? 0);
+                const image_count = Number(p.image_count ?? 0);
+                const area_size = p.area_size ?? undefined;
 
-      {/* CTA */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 mt-10 mb-12 flex justify-center">
-        <button className="bg-[#ABA48D] text-white px-6 py-3 rounded-full shadow hover:bg-[#958d76] transition font-medium">
-          Зар оруулах
-        </button>
+                return (
+                  <div key={id} onClick={() => gotoDetail(id)} className="cursor-pointer">
+                    <PropertyCard
+                      id={id}
+                      title={title}
+                      price={priceStr}
+                      location_text={loc}
+                      main_image={main_image}
+                      view_count={view_count}
+                      image_count={image_count}
+                      area_size={area_size}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2">
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                >
+                  Өмнөх
+                </button>
+                
+                <div className="flex gap-1">
+                  {[...Array(Math.min(5, totalPages))].map((_, idx) => {
+                    let pageNum:number;
+                    if (totalPages <= 5) {
+                      pageNum = idx + 1;
+                    } else if (page <= 3) {
+                      pageNum = idx + 1;
+                    } else if (page >= totalPages - 2) {
+                      pageNum = totalPages - 4 + idx;
+                    } else {
+                      pageNum = page - 2 + idx;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setPage(pageNum)}
+                        className={`px-4 py-2 rounded-lg transition-colors ${
+                          page === pageNum
+                            ? "bg-[#ABA48D] text-white"
+                            : "border border-gray-300 hover:bg-gray-50"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                >
+                  Дараах
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

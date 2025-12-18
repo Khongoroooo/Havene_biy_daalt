@@ -13,7 +13,7 @@ const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [view, setView] = useState<ViewMode>("login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState<string>("USER");
+  const [role, setRole] = useState<string>("GUEST");
 
   // JWT decode → хэрэглэгчийн role тодорхойлох
   useEffect(() => {
@@ -31,6 +31,7 @@ const Navbar = () => {
 
   return (
     <>
+      <h1>{role}</h1>
       <NavbarMenu
         setOpen={setOpen}
         setSidebarOpen={setSidebarOpen}

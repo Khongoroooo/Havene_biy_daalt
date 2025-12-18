@@ -17,10 +17,16 @@ interface MenuItem {
       { label: "ТАНИЛЦУУЛГА", url: "/about" },
       { label: "ХОЛБОО БАРИХ", url: "/contact" },
     ],
-  
+    
     agent: [
       { label: "МИНИЙ ЗАРУУД", url: "/my-properties" },
       { label: "ЗАХИАЛГУУД", url: "/bookings" },
+      { label: "ПРОФАЙЛ", url: "/profile" },
+    ],
+    
+    user: [
+      { label: "НҮҮР", url: "/" },
+      { label: "МИНИЙ ЗАРУУД", url: "/my-havene" },
       { label: "ПРОФАЙЛ", url: "/profile" },
     ],
     

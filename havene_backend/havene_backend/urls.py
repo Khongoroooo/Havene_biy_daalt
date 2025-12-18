@@ -5,4 +5,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),  
     path('api/', include('adminapp.urls')),  # REST API
+    path("ul_hudluh/", include("ul_hudluh.urls")),
 ]

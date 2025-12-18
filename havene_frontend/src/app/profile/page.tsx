@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getProfile } from "../components/services/api";
+import { getProfile } from "./services/api";
 
 interface User {
   id: number;
@@ -57,9 +57,7 @@ const ProfilePage = () => {
   return (
     <div className="flex justify-center items-center py-10 px-4">
       <div className="w-full max-w-2xl bg-white shadow-md rounded-xl p-8 dark:bg-gray-900 dark:text-white">
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Хэрэглэгчийн мэдээлэл
-        </h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Хэрэглэгчийн мэдээлэл</h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
           <div>
@@ -93,7 +91,7 @@ const ProfilePage = () => {
             </div>
           )}
         </div>
-
+{/* 
         <div className="mt-8 flex justify-center">
           <button
             onClick={() => {
@@ -104,7 +102,7 @@ const ProfilePage = () => {
           >
             Гарах
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
